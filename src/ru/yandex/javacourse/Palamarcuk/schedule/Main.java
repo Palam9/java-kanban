@@ -1,4 +1,4 @@
-package ru.yandex.javacourse.Palamarcuk.schedule.main;
+package ru.yandex.javacourse.Palamarcuk.schedule;
 
 import ru.yandex.javacourse.Palamarcuk.schedule.manager.TaskManager;
 import ru.yandex.javacourse.Palamarcuk.schedule.task.*;

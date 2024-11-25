@@ -11,11 +11,26 @@ public class Epic extends Task {
     }
 
     public List<Integer> getSubtaskIds() {
-        return subtaskIds;
+        return new ArrayList<>(subtaskIds);
     }
 
     public void setSubtaskIds(List<Integer> subtaskIds) {
-        this.subtaskIds = subtaskIds;
+        this.subtaskIds = new ArrayList<>(subtaskIds);
+    }
+
+
+    public void addSubtaskId(int subtaskId) {
+        subtaskIds.add(subtaskId);
+    }
+
+
+    public void removeSubtaskId(int subtaskId) {
+        subtaskIds.remove((Integer) subtaskId); // Удаление по значению
+    }
+
+
+    public void clearSubtaskIds() {
+        subtaskIds.clear();
     }
 
     @Override

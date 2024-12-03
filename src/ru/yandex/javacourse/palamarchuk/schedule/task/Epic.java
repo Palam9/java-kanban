@@ -1,4 +1,4 @@
-package ru.yandex.javacourse.Palamarcuk.schedule.task;
+package ru.yandex.javacourse.palamarchuk.schedule.task;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,8 +6,8 @@ import java.util.List;
 public class Epic extends Task {
     private List<Integer> subtaskIds = new ArrayList<>();
 
-    public Epic(String title, String description, Status status) {
-        super(title, description, status);
+    public Epic(String title, String description) {
+        super(title, description, Status.NEW); // Устанавливаем статус NEW по умолчанию
     }
 
     public List<Integer> getSubtaskIds() {
@@ -18,16 +18,13 @@ public class Epic extends Task {
         this.subtaskIds = new ArrayList<>(subtaskIds);
     }
 
-
     public void addSubtaskId(int subtaskId) {
         subtaskIds.add(subtaskId);
     }
 
-
     public void removeSubtaskId(int subtaskId) {
         subtaskIds.remove((Integer) subtaskId); // Удаление по значению
     }
-
 
     public void clearSubtaskIds() {
         subtaskIds.clear();

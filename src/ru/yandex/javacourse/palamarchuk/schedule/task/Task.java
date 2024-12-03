@@ -1,4 +1,4 @@
-package ru.yandex.javacourse.Palamarcuk.schedule.task;
+package ru.yandex.javacourse.palamarchuk.schedule.task;
 
 import java.util.Objects;
 

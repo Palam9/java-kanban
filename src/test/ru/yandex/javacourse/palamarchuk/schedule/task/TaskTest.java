@@ -1,4 +1,3 @@
-
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import ru.yandex.javacourse.palamarchuk.schedule.task.*;
@@ -27,4 +26,3 @@ class TaskTest {
         assertNotEquals(task1, task2, "Задачи с разными id не должны быть равны");
     }
 }
-

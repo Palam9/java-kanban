@@ -1,17 +1,16 @@
 package ru.yandex.javacourse.palamarchuk.schedule.manager;
 
-import ru.yandex.javacourse.palamarchuk.schedule.task.Epic;
-import ru.yandex.javacourse.palamarchuk.schedule.task.Status;
-import ru.yandex.javacourse.palamarchuk.schedule.task.Subtask;
-import ru.yandex.javacourse.palamarchuk.schedule.task.Task;
+import ru.yandex.javacourse.palamarchuk.schedule.task.*;
 
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
+
     private final Map<Integer, Task> tasks = new HashMap<>();
     private final Map<Integer, Epic> epics = new HashMap<>();
     private final Map<Integer, Subtask> subtasks = new HashMap<>();
     private final HistoryManager historyManager = Managers.getDefaultHistory();
+
     private int generatorId = 0;
 
     @Override
@@ -35,7 +34,7 @@ public class InMemoryTaskManager implements TaskManager {
         int epicId = subtask.getEpicId();
         Epic epic = epics.get(epicId);
         if (epic == null) {
-            return null;
+            throw new IllegalArgumentException("Epic with id " + epicId + " not found");
         }
         int id = ++generatorId;
         subtask.setId(id);
@@ -43,6 +42,11 @@ public class InMemoryTaskManager implements TaskManager {
         epic.addSubtaskId(id);
         updateEpicStatus(epic);
         return id;
+    }
+
+    @Override
+    public List<Task> getTasks() {
+        return new ArrayList<>(tasks.values()); // Возвращаем список всех задач
     }
 
     @Override
@@ -95,29 +99,17 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTask(int id) {
-        Task task = tasks.get(id);
-        if (task != null) {
-            historyManager.add(task);
-        }
-        return task;
+        return addToHistoryAndReturn(tasks.get(id));
     }
 
     @Override
     public Epic getEpic(int id) {
-        Epic epic = epics.get(id);
-        if (epic != null) {
-            historyManager.add(epic);
-        }
-        return epic;
+        return addToHistoryAndReturn(epics.get(id));
     }
 
     @Override
     public Subtask getSubtask(int id) {
-        Subtask subtask = subtasks.get(id);
-        if (subtask != null) {
-            historyManager.add(subtask);
-        }
-        return subtask;
+        return addToHistoryAndReturn(subtasks.get(id));
     }
 
     @Override
@@ -149,21 +141,33 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task) {
-        tasks.put(task.getId(), task);
+        int id = task.getId();
+        if (!tasks.containsKey(id)) {
+            return;
+        }
+        tasks.put(id, task);
     }
 
     @Override
     public void updateEpic(Epic epic) {
+        Epic savedEpic = epics.get(epic.getId());
+        if (savedEpic == null) {
+            return;
+        }
+        epic.setSubtaskIds(savedEpic.getSubtaskIds());
+        epic.setStatus(savedEpic.getStatus());
         epics.put(epic.getId(), epic);
     }
 
     @Override
     public void updateSubtask(Subtask subtask) {
-        subtasks.put(subtask.getId(), subtask);
-        Epic epic = epics.get(subtask.getEpicId());
-        if (epic != null) {
-            updateEpicStatus(epic);
+        int id = subtask.getId();
+        int epicId = subtask.getEpicId();
+        if (!subtasks.containsKey(id) || !epics.containsKey(epicId)) {
+            return;
         }
+        subtasks.put(id, subtask);
+        updateEpicStatus(epics.get(epicId));
     }
 
     @Override
@@ -193,5 +197,12 @@ public class InMemoryTaskManager implements TaskManager {
         } else {
             epic.setStatus(Status.IN_PROGRESS);
         }
+    }
+
+    private <T extends Task> T addToHistoryAndReturn(T task) {
+        if (task != null) {
+            historyManager.add(task);
+        }
+        return task;
     }
 }

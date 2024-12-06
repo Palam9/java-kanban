@@ -1,10 +1,12 @@
+package ru.yandex.javacourse.palamarchuk.schedule.task;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.javacourse.palamarchuk.schedule.task.*;
 
 class EpicTest {
+
     private Epic epic;
 
     @BeforeEach
@@ -31,4 +33,3 @@ class EpicTest {
         assertTrue(epic.getSubtaskIds().isEmpty(), "Все подзадачи должны быть удалены");
     }
 }
-

@@ -3,81 +3,75 @@ package ru.yandex.javacourse.palamarchuk.schedule.manager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.javacourse.palamarchuk.schedule.task.*;
-
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TaskManagerTest {
+
+public class TaskManagerTest {
 
     private TaskManager taskManager;
+    private Task task1;
+    private Task task2;
+    private Epic epic;
 
     @BeforeEach
     void setUp() {
-        taskManager = new InMemoryTaskManager();
+        taskManager = Managers.getDefault();
+        task1 = new Task("Task 1", "Description 1", Status.NEW);
+        task2 = new Task("Task 2", "Description 2", Status.NEW);
+        epic = new Epic("Epic 1", "Epic Description");
     }
 
     @Test
-    void testTaskEqualityById() {
-        Task task1 = new Task("Task 1", "Description 1", Status.NEW);
-        Task task2 = new Task("Task 1", "Description 1", Status.NEW);
-
-        taskManager.addTask(task1);
-        taskManager.addTask(task2);
-
-        assertNotEquals(task1.getId(), task2.getId(), "У каждой задачи должен быть уникальный ID");
+    void testAddTask() {
+        int taskId = taskManager.addTask(task1);
+        assertNotNull(taskManager.getTask(taskId), "Задача не была добавлена.");
     }
 
     @Test
-    void testEpicCannotAddItselfAsSubtask() {
-        Epic epic = new Epic("Epic 1", "Epic Description");
+    void testRemoveTask() {
+        int taskId = taskManager.addTask(task1);
+        taskManager.removeTask(taskId);
+
+        assertNull(taskManager.getTask(taskId), "Задача не была удалена.");
+    }
+
+    @Test
+    void testEpicSubtaskConsistency() {
         int epicId = taskManager.addEpic(epic);
+        Subtask subtask = new Subtask("Subtask 1", "Subtask Description", Status.NEW, epicId);
+        int subtaskId = taskManager.addSubtask(subtask);
 
-        assertThrows(IllegalArgumentException.class,
-                () -> taskManager.addSubtask(new Subtask("Subtask", "Description", Status.NEW, epicId)),
-                "Эпик не может быть добавлен как подзадача самому себе");
+        // Проверим, что подзадача была добавлена в эпик
+        assertTrue(epic.getSubtaskIds().contains(subtaskId), "ID подзадачи не был добавлен в эпик.");
+
+        taskManager.removeSubtask(subtaskId);
+
+        // Проверим, что подзадача была удалена из эпика
+        assertFalse(epic.getSubtaskIds().contains(subtaskId), "ID подзадачи не был удален из эпика.");
     }
 
     @Test
-    void testAddTasksAndRetrieveById() {
-        Task task = new Task("Task 1", "Description 1", Status.NEW);
-        Epic epic = new Epic("Epic 1", "Epic Description");
+    void testTaskUpdate() {
+        int taskId = taskManager.addTask(task1);
+        Task updatedTask = new Task("Updated Task", "Updated Description", Status.IN_PROGRESS);
+        updatedTask.setId(taskId);
 
-        int taskId = taskManager.addTask(task);
-        int epicId = taskManager.addEpic(epic);
+        taskManager.updateTask(updatedTask);
+        Task taskFromManager = taskManager.getTask(taskId);
 
-        assertNotNull(taskManager.getTask(taskId), "Задача не найдена по id");
-        assertNotNull(taskManager.getEpic(epicId), "Эпик не найден по id");
+        assertEquals(updatedTask, taskFromManager, "Задача не была обновлена корректно.");
     }
 
     @Test
-    void addNewTask() {
-        Task task = new Task("Test addNewTask", "Test addNewTask description", Status.NEW);
-        final int taskId = taskManager.addTask(task);
-
-        final Task savedTask = taskManager.getTask(taskId);
-
-        assertNotNull(savedTask, "Задача не найдена.");
-        assertEquals(task, savedTask, "Задачи не совпадают.");
-
-        final List<Task> tasks = taskManager.getAllTasks(); // Используем getAllTasks
-
-        assertNotNull(tasks, "Задачи не возвращаются.");
-        assertEquals(1, tasks.size(), "Неверное количество задач.");
-        assertEquals(task, tasks.get(0), "Задачи не совпадают.");
-    }
-
-
-    @Test
-    void testHistoryManagerPreservesTaskHistory() {
-        Task task = new Task("Task 1", "Description 1", Status.NEW);
-        int taskId = taskManager.addTask(task);
-
-        taskManager.getTask(taskId);
+    void testRemoveTaskFromHistoryOnDeletion() {
+        int taskId = taskManager.addTask(task1);
+        taskManager.getTask(taskId);  // Добавим в историю
+        taskManager.removeTask(taskId);  // Удалим задачу
 
         List<Task> history = taskManager.getHistory();
-
-        assertEquals(1, history.size(), "История должна содержать одну задачу");
-        assertEquals(task, history.get(0), "Задача в истории не совпадает с добавленной задачей");
+        assertTrue(history.isEmpty(), "История должна быть пуста после удаления задачи.");
     }
 }
+

@@ -34,10 +34,8 @@ public class InMemoryHistoryManager implements HistoryManager {
     public void remove(int id) {
         Node node = taskMap.get(id);
         if (node != null) {
-            // Удаляем узел из списка
             removeNode(node);
 
-            // Удаляем из HashMap
             taskMap.remove(id);
         }
     }

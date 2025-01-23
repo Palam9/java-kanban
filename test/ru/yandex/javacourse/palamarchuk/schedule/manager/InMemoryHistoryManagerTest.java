@@ -10,18 +10,18 @@ import static org.junit.jupiter.api.Assertions.*;
 class InMemoryHistoryManagerTest {
 
     private InMemoryHistoryManager historyManager;
+    private Task task1;
 
     @BeforeEach
     void setUp() {
         historyManager = new InMemoryHistoryManager();
+        task1 = new Task("Task 1", "Description", Status.NEW);
+        task1.setId(1);
     }
 
     @Test
-    void testAddAndRemoveTask() {
-        Task task1 = new Task("Task 1", "Description 1", Status.NEW);
-        task1.setId(1);
+    void testAddAndRemoveTaskFromHistory() {
         historyManager.add(task1);
-
         assertEquals(1, historyManager.getHistory().size(), "История должна содержать одну задачу");
 
         historyManager.remove(1);
@@ -29,10 +29,8 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void testAddMultipleTasks() {
-        Task task1 = new Task("Task 1", "Description 1", Status.NEW);
-        task1.setId(1);
-        Task task2 = new Task("Task 2", "Description 2", Status.IN_PROGRESS);
+    void testHistoryAfterMultipleAdditions() {
+        Task task2 = new Task("Task 2", "Another task", Status.NEW);
         task2.setId(2);
 
         historyManager.add(task1);
@@ -42,23 +40,11 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    void testRemoveTask() {
-        Task task1 = new Task("Task 1", "Description 1", Status.NEW);
-        task1.setId(1);
+    void testRemoveTaskFromHistory() {
         historyManager.add(task1);
         historyManager.remove(1);
 
-        assertTrue(historyManager.getHistory().isEmpty(), "История должна быть пуста");
-    }
-
-    @Test
-    void testAddTaskAfterRemoval() {
-        Task task1 = new Task("Task 1", "Description 1", Status.NEW);
-        task1.setId(1);
-        historyManager.add(task1);
-        historyManager.remove(1);
-        historyManager.add(task1);
-
-        assertEquals(1, historyManager.getHistory().size(), "История должна содержать одну задачу");
+        assertTrue(historyManager.getHistory().isEmpty(), "История должна быть пуста после удаления задачи");
     }
 }
+

@@ -3,17 +3,19 @@ package ru.yandex.javacourse.palamarchuk.schedule.task;
 import java.util.Objects;
 
 public class Task {
-    private int id;
-    private String title;
-    private String description;
-    private Status status;
+    private int id; // Идентификатор задачи
+    private String title; // Заголовок задачи
+    private String description; // Описание задачи
+    private Status status; // Статус задачи
 
+    // Конструктор
     public Task(String title, String description, Status status) {
         this.title = title;
         this.description = description;
         this.status = status;
     }
 
+    // Геттеры и сеттеры
     public int getId() {
         return id;
     }
@@ -46,19 +48,23 @@ public class Task {
         this.status = status;
     }
 
+
+    // Метод equals для сравнения только по id
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) return true; // Объекты равны, если это один и тот же экземпляр
+        if (o == null || getClass() != o.getClass()) return false; // Классы должны совпадать
         Task task = (Task) o;
-        return id == task.id && title.equals(task.title) && description.equals(task.description) && status == task.status;
+        return id == task.id; // Сравнение только по id
     }
 
+    // Метод hashCode для генерации хэша только на основе id
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, description, status);
+        return Objects.hash(id);
     }
 
+    // Переопределение toString для удобного отображения задачи
     @Override
     public String toString() {
         return "Task{" +

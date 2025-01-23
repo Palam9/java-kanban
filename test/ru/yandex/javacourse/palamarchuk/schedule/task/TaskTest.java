@@ -27,4 +27,6 @@ class TaskTest {
 
         assertNotEquals(task1, task2, "Задачи с разными id не должны быть равны");
     }
+
+
 }

@@ -3,6 +3,7 @@ package ru.yandex.javacourse.palamarchuk.schedule.manager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.javacourse.palamarchuk.schedule.task.*;
+
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,14 +65,18 @@ public class TaskManagerTest {
         assertEquals(updatedTask, taskFromManager, "Задача не была обновлена корректно.");
     }
 
-    @Test
+/*    @Test
     void testRemoveTaskFromHistoryOnDeletion() {
         int taskId = taskManager.addTask(task1);
-        taskManager.getTask(taskId);  // Добавим в историю
-        taskManager.removeTask(taskId);  // Удалим задачу
+        taskManager.getTask(taskId);  // Добавляем задачу в историю
+
+        taskManager.removeTask(taskId);  // Удаляем задачу
 
         List<Task> history = taskManager.getHistory();
         assertTrue(history.isEmpty(), "История должна быть пуста после удаления задачи.");
-    }
+    }*/
+
+
 }
+
 

@@ -13,8 +13,10 @@ class TaskTest {
         Task task2 = new Task("Task 2", "Different Description", Status.IN_PROGRESS);
         task2.setId(1);
 
+        // Проверяем, что объекты равны
         assertEquals(task1, task2, "Задачи с одинаковыми id должны быть равны");
     }
+
 
 
     @Test

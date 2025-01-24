@@ -1,4 +1,5 @@
 import ru.yandex.javacourse.palamarchuk.schedule.manager.InMemoryHistoryManager;
+import ru.yandex.javacourse.palamarchuk.schedule.manager.HistoryManager;  // Возможно, потребуется добавить импорт интерфейса
 import ru.yandex.javacourse.palamarchuk.schedule.task.Task;
 import ru.yandex.javacourse.palamarchuk.schedule.task.Status;
 
@@ -9,12 +10,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryHistoryManagerTest {
 
-    private InMemoryHistoryManager historyManager;
+    private HistoryManager historyManager;  // Используем интерфейс HistoryManager
     private Task task1;
 
     @BeforeEach
     void setUp() {
-        historyManager = new InMemoryHistoryManager();
+        historyManager = new InMemoryHistoryManager();  // Инициализируем менеджер через интерфейс
         task1 = new Task("Task 1", "Description", Status.NEW);
         task1.setId(1);
     }
@@ -47,4 +48,3 @@ class InMemoryHistoryManagerTest {
         assertTrue(historyManager.getHistory().isEmpty(), "История должна быть пуста после удаления задачи");
     }
 }
-

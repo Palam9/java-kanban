@@ -1,42 +1,45 @@
 package ru.yandex.javacourse.palamarchuk.schedule.manager;
 
 import ru.yandex.javacourse.palamarchuk.schedule.task.Task;
+import ru.yandex.javacourse.palamarchuk.schedule.manager.HistoryManager;
+
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-
 public class InMemoryHistoryManager implements HistoryManager {
-    private final Map<Integer, Node> taskMap = new HashMap<>();
+    private static final int HISTORY_LIMIT = 10;
+    private final Map<Integer, Node> historyMap = new HashMap<>();
     private Node head;
     private Node tail;
 
     @Override
     public void add(Task task) {
-        if (taskMap.containsKey(task.getId())) {
-            // Удаляем старый узел, если задача уже есть в истории
+        if (task == null) {
+            return;
+        }
+
+        if (historyMap.containsKey(task.getId())) {
             remove(task.getId());
         }
 
-        // Создаем новый узел с задачей
-        Node newNode = new Node(task);
+        if (historyMap.size() == HISTORY_LIMIT) {
+            remove(head.task.getId()); // Удаляем самую старую задачу
+        }
 
-        // Добавляем в конец списка
+        Node newNode = new Node(task, tail, null);
         linkLast(newNode);
-
-        // Добавляем в HashMap
-        taskMap.put(task.getId(), newNode);
+        historyMap.put(task.getId(), newNode);
     }
 
     @Override
     public void remove(int id) {
-        Node node = taskMap.get(id);
+        Node node = historyMap.get(id);
         if (node != null) {
             removeNode(node);
-
-            taskMap.remove(id);
+            historyMap.remove(id);
         }
     }
 
@@ -81,9 +84,10 @@ public class InMemoryHistoryManager implements HistoryManager {
         Node prev;
         Node next;
 
-        public Node(Task task) {
+        public Node(Task task, Node prev, Node next) {
             this.task = task;
+            this.prev = prev;
+            this.next = next;
         }
     }
 }
-

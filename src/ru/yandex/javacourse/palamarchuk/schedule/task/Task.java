@@ -8,6 +8,10 @@ public class Task {
     private String description; // Описание задачи
     private Status status; // Статус задачи
 
+    public TaskType getType() {
+        return TaskType.TASK;
+    }
+
     // Конструктор
     public Task(String title, String description, Status status) {
         this.title = title;

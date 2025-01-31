@@ -12,12 +12,18 @@ public class Task {
         return TaskType.TASK;
     }
 
-    // Конструктор
-    public Task(String title, String description, Status status) {
+    //Конструктор id
+    public Task(int id, String title, String description, Status status) {
+        this.id = id;
         this.title = title;
         this.description = description;
         this.status = status;
     }
+
+    public Task(String title, String description, Status status) {
+        this(0, title, description, status);
+    }
+
 
     // Геттеры и сеттеры
     public int getId() {
@@ -54,18 +60,23 @@ public class Task {
 
 
     // Метод equals для сравнения только по id
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true; // Объекты равны, если это один и тот же экземпляр
-        if (o == null || getClass() != o.getClass()) return false; // Классы должны совпадать
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return id == task.id; // Сравнение только по id
+        return id == task.id &&
+                Objects.equals(title, task.title) &&
+                Objects.equals(description, task.description) &&
+                status == task.status;
     }
+
 
     // Метод hashCode для генерации хэша только на основе id
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(id, title, description, status);
     }
 
     // Переопределение toString для удобного отображения задачи

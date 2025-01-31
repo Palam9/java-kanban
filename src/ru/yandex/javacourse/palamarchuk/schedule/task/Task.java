@@ -3,17 +3,29 @@ package ru.yandex.javacourse.palamarchuk.schedule.task;
 import java.util.Objects;
 
 public class Task {
-    private int id;
-    private String title;
-    private String description;
-    private Status status;
+    private int id; // Идентификатор задачи
+    private String title; // Заголовок задачи
+    private String description; // Описание задачи
+    private Status status; // Статус задачи
 
-    public Task(String title, String description, Status status) {
+    public TaskType getType() {
+        return TaskType.TASK;
+    }
+
+    //Конструктор id
+    public Task(int id, String title, String description, Status status) {
+        this.id = id;
         this.title = title;
         this.description = description;
         this.status = status;
     }
 
+    public Task(String title, String description, Status status) {
+        this(0, title, description, status);
+    }
+
+
+    // Геттеры и сеттеры
     public int getId() {
         return id;
     }
@@ -46,19 +58,28 @@ public class Task {
         this.status = status;
     }
 
+
+    // Метод equals для сравнения только по id
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return id == task.id && title.equals(task.title) && description.equals(task.description) && status == task.status;
+        return id == task.id &&
+                Objects.equals(title, task.title) &&
+                Objects.equals(description, task.description) &&
+                status == task.status;
     }
 
+
+    // Метод hashCode для генерации хэша только на основе id
     @Override
     public int hashCode() {
         return Objects.hash(id, title, description, status);
     }
 
+    // Переопределение toString для удобного отображения задачи
     @Override
     public String toString() {
         return "Task{" +

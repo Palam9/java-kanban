@@ -2,7 +2,6 @@ package ru.yandex.javacourse.palamarchuk.schedule.task;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Locale;
 import java.util.Objects;
 
 public class Task {

@@ -3,8 +3,7 @@ package ru.yandex.javacourse.palamarchuk.schedule.manager;
 import ru.yandex.javacourse.palamarchuk.schedule.task.*;
 
 import java.util.*;
-import java.time.Duration;
-import java.time.LocalDateTime;
+
 
 public class InMemoryTaskManager implements TaskManager {
 

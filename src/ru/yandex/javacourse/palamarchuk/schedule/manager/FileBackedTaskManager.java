@@ -5,6 +5,7 @@ import ru.yandex.javacourse.palamarchuk.schedule.task.*;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
+import java.time.Duration;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private static final String HEADER = "id,type,name,status,description,epic";
@@ -93,6 +94,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         save();
     }
 
+
     /**
      * Сохранение состояния менеджера в файл.
      */
@@ -178,16 +180,17 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
         switch (type) {
             case TASK:
-                return new Task(name, description, status);
+                return new Task(name, description, status, Duration.ZERO, null); // Добавлены Duration и startTime
             case EPIC:
                 return new Epic(name, description);
             case SUBTASK:
                 int epicId = Integer.parseInt(fields[5]);
-                return new Subtask(name, description, status, epicId);
+                return new Subtask(name, description, status, Duration.ZERO, null, epicId); // Добавлены Duration и startTime
             default:
                 throw new IllegalArgumentException("Неизвестный тип задачи: " + type);
         }
     }
+
 
     /**
      * Вспомогательный метод для добавления задачи.

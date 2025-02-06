@@ -3,6 +3,8 @@ package ru.yandex.javacourse.palamarchuk.schedule.manager;
 import ru.yandex.javacourse.palamarchuk.schedule.task.*;
 
 import java.util.*;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class InMemoryTaskManager implements TaskManager {
 
@@ -10,8 +12,26 @@ public class InMemoryTaskManager implements TaskManager {
     protected final Map<Integer, Epic> epics = new HashMap<>();
     protected final Map<Integer, Subtask> subtasks = new HashMap<>();
     private final HistoryManager historyManager = Managers.getDefaultHistory();
+    // TreeSet для хранения задач по приоритету (по времени старта)
+    private final TreeSet<Task> prioritizedTasks = new TreeSet<>(Comparator.comparing(Task::getStartTime, Comparator.nullsLast(Comparator.naturalOrder())));
+
 
     protected int generatorId = 0;
+
+    // Добавление задачи в менеджере и приоритетную очередь, если задано startTime
+    @Override
+    public void addTaskTime(Task task) {
+        if (task.getStartTime() != null) {
+            // Проверка пересечения с уже существующими задачами
+            boolean hasOverlap = prioritizedTasks.stream().anyMatch(existingTask -> existingTask.isOverlapping(task));
+            if (hasOverlap) {
+                throw new IllegalArgumentException("Task накладывается на существующую.");
+            }
+            prioritizedTasks.add(task);
+        }
+        tasks.put(task.getId(), task);
+    }
+
 
     @Override
     public int addTask(Task task) {
@@ -204,5 +224,11 @@ public class InMemoryTaskManager implements TaskManager {
             historyManager.add(task);
         }
         return task;
+    }
+
+    // Получение списка задач, отсортированного по приоритету (startTime)
+    @Override
+    public List<Task> getPrioritizedTasks() {
+        return new ArrayList<>(prioritizedTasks);
     }
 }

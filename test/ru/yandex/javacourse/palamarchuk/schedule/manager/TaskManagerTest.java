@@ -1,13 +1,16 @@
 package ru.yandex.javacourse.palamarchuk.schedule.manager;
 
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.javacourse.palamarchuk.schedule.task.*;
-
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 class TaskManagerTest {
 
@@ -70,7 +73,14 @@ class TaskManagerTest {
     @Test
     void testSubtaskConsistency() {
         int epicId = taskManager.addEpic(epic);
-        Subtask subtask = new Subtask("Subtask 1", "Subtask Description", Status.NEW, epicId);
+        Subtask subtask = new Subtask(
+                "Subtask 1",
+                "Subtask Description",
+                Status.NEW,
+                Duration.ofMinutes(30),  // Указываем длительность
+                LocalDateTime.now(),     // Указываем время начала
+                epicId
+        );
         int subtaskId = taskManager.addSubtask(subtask);
 
         assertTrue(epic.getSubtaskIds().contains(subtaskId), "ID подзадачи не был добавлен в эпик.");
@@ -97,7 +107,8 @@ class TaskManagerTest {
     @Test
     void testSubtaskDataIntegrity() {
         int epicId = taskManager.addEpic(epic);
-        Subtask subtask = new Subtask("Subtask 1", "Subtask Description", Status.NEW, epicId);
+        Subtask subtask = new Subtask("Subtask 1", "Description 1", Status.NEW,
+                Duration.ofMinutes(30), LocalDateTime.now(), 1);
         int subtaskId = taskManager.addSubtask(subtask);
 
         // Изменим подзадачу через сеттеры
@@ -112,7 +123,8 @@ class TaskManagerTest {
     @Test
     void testRemoveSubtaskDataIntegrity() {
         int epicId = taskManager.addEpic(epic);
-        Subtask subtask = new Subtask("Subtask 1", "Subtask Description", Status.NEW, epicId);
+        Subtask subtask = new Subtask("Subtask 1", "Description 1", Status.NEW,
+                Duration.ofMinutes(30), LocalDateTime.now(), 1);
         int subtaskId = taskManager.addSubtask(subtask);
 
         taskManager.removeSubtask(subtaskId);

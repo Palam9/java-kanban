@@ -9,6 +9,10 @@ import java.util.List;
 
 public interface TaskManager {
 
+   void addTaskTime(Task task);
+
+    List<Task> getPrioritizedTasks();
+
     int addTask(Task task);
 
     int addEpic(Epic epic);

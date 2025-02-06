@@ -1,10 +1,14 @@
 package ru.yandex.javacourse.palamarchuk.schedule.task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
+
 public class Subtask extends Task {
     private int epicId;
 
-    public Subtask(String title, String description, Status status, int epicId) {
-        super(title, description, status);
+    public Subtask(String title, String description, Status status, Duration duration, LocalDateTime startTime, int epicId) {
+        super(title, description, status, duration, startTime);
         this.epicId = epicId;
     }
 

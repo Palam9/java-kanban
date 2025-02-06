@@ -6,6 +6,8 @@ import ru.yandex.javacourse.palamarchuk.schedule.task.Epic;
 import ru.yandex.javacourse.palamarchuk.schedule.task.Status;
 import ru.yandex.javacourse.palamarchuk.schedule.task.Subtask;
 import ru.yandex.javacourse.palamarchuk.schedule.task.Task;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class Main {
     public static void main(String[] args) {
@@ -21,7 +23,8 @@ public class Main {
         Epic epic = new Epic("Epic 1", "Epic Description");
         int epicId = taskManager.addEpic(epic);
 
-        Subtask subtask = new Subtask("Subtask 1", "Subtask Description", Status.NEW, epicId);
+        Subtask subtask = new Subtask("Subtask 1", "Subtask Description", Status.NEW, Duration.ofHours(1), LocalDateTime.now(), epicId);
+
         taskManager.addSubtask(subtask);
 
         // Делаем запросы и печатаем историю

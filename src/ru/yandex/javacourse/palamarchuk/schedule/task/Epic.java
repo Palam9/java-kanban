@@ -17,6 +17,25 @@ public class Epic extends Task {
     public void addSubtask(Subtask subtask) {
         subtasks.add(subtask);
         recalculateTime();
+        recalculateStatus();
+    }
+
+    public void recalculateStatus() {
+        if (subtasks.isEmpty()) {
+            this.status = Status.NEW;  // Если нет подзадач, статус эпика NEW
+            return;
+        }
+
+        boolean allNew = subtasks.stream().allMatch(subtask -> subtask.getStatus() == Status.NEW);
+        boolean allDone = subtasks.stream().allMatch(subtask -> subtask.getStatus() == Status.DONE);
+
+        if (allNew) {
+            this.status = Status.NEW;
+        } else if (allDone) {
+            this.status = Status.DONE;
+        } else {
+            this.status = Status.IN_PROGRESS;  // Если есть хотя бы одна подзадача NEW или IN_PROGRESS, эпик в процессе
+        }
     }
 
     public void recalculateTime() {

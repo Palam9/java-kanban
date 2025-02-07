@@ -8,7 +8,7 @@ public class Task {
     private int id; // Идентификатор задачи
     private String title; // Заголовок задачи
     private String description; // Описание задачи
-    private Status status; // Статус задачи
+    protected Status status; // Статус задачи
     protected Duration duration;
     protected LocalDateTime startTime;
 

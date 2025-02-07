@@ -47,4 +47,16 @@ class InMemoryHistoryManagerTest {
 
         assertTrue(historyManager.getHistory().isEmpty(), "История должна быть пуста после удаления задачи");
     }
+
+    @Test
+    void testAddAndRemoveHistory() {
+        HistoryManager historyManager = new InMemoryHistoryManager();
+        Task task = new Task("Task 1", "Description", Status.NEW);
+        historyManager.add(task);
+        assertEquals(1, historyManager.getHistory().size(), "История должна содержать одну задачу");
+
+        historyManager.remove(task.getId());
+        assertEquals(0, historyManager.getHistory().size(), "История должна быть пустой после удаления задачи");
+    }
+
 }

@@ -132,6 +132,15 @@ class TaskManagerTest {
         // Проверим, что подзадача не существует в менеджере после удаления
         assertNull(taskManager.getSubtask(subtaskId), "Подзадача не была удалена.");
     }
+
+    @Test
+    void testAddTaskSuccessfully() {
+        TaskManager taskManager = new InMemoryTaskManager();
+        Task task = new Task("Task 1", "Description", Status.NEW);
+        int id = taskManager.addTask(task);
+        assertNotNull(taskManager.getTask(id), "Задача должна быть добавлена в менеджер");
+    }
+
 }
 
 

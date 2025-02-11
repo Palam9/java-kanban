@@ -9,7 +9,6 @@ import java.util.List;
 
 public interface TaskManager {
 
-   void addTaskTime(Task task);
 
     List<Task> getPrioritizedTasks();
 

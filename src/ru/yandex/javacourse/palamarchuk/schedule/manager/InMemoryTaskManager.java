@@ -2,22 +2,41 @@ package ru.yandex.javacourse.palamarchuk.schedule.manager;
 
 import ru.yandex.javacourse.palamarchuk.schedule.task.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private final Map<Integer, Task> tasks = new HashMap<>();
-    private final Map<Integer, Epic> epics = new HashMap<>();
-    private final Map<Integer, Subtask> subtasks = new HashMap<>();
+    protected final Map<Integer, Task> tasks = new HashMap<>();
+    protected final Map<Integer, Epic> epics = new HashMap<>();
+    protected final Map<Integer, Subtask> subtasks = new HashMap<>();
     private final HistoryManager historyManager = Managers.getDefaultHistory();
+    private final TreeSet<Task> prioritizedTasks = new TreeSet<>(
+            Comparator.comparing(Task::getStartTime, Comparator.nullsLast(Comparator.naturalOrder()))
+    );
 
-    private int generatorId = 0;
+    protected int generatorId = 0;
+
+    // Приватный метод для добавления задачи в приоритетную очередь и сохранения в tasks
+    private void addTaskTime(Task task) {
+        if (task == null || task.getStartTime() == null) {
+            return;
+        }
+        boolean hasOverlap = prioritizedTasks.stream().anyMatch(existingTask -> existingTask.isOverlapping(task));
+        if (hasOverlap) {
+            throw new IllegalArgumentException("Task накладывается на существующую.");
+        }
+        prioritizedTasks.add(task);
+        tasks.put(task.getId(), task);
+    }
 
     @Override
     public int addTask(Task task) {
         int id = ++generatorId;
         task.setId(id);
-        tasks.put(id, task);
+        addTaskTime(task); // Добавляем в prioritizedTasks
+        tasks.put(id, task); // Добавляем в tasks
         return id;
     }
 
@@ -40,13 +59,14 @@ public class InMemoryTaskManager implements TaskManager {
         subtask.setId(id);
         subtasks.put(id, subtask);
         epic.addSubtaskId(id);
-        updateEpicStatus(epic);
+        recalculateStatus(epic);
+        recalculateTime(epic);
         return id;
     }
 
     @Override
     public List<Task> getTasks() {
-        return new ArrayList<>(tasks.values()); // Возвращаем список всех задач
+        return new ArrayList<>(tasks.values());
     }
 
     @Override
@@ -59,7 +79,8 @@ public class InMemoryTaskManager implements TaskManager {
         subtasks.clear();
         for (Epic epic : epics.values()) {
             epic.getSubtaskIds().clear();
-            updateEpicStatus(epic);
+            recalculateStatus(epic);
+            recalculateTime(epic);
         }
     }
 
@@ -93,7 +114,8 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epics.get(subtask.getEpicId());
         if (epic != null) {
             epic.removeSubtaskId(id);
-            updateEpicStatus(epic);
+            recalculateStatus(epic);
+            recalculateTime(epic);
         }
     }
 
@@ -145,7 +167,8 @@ public class InMemoryTaskManager implements TaskManager {
         if (!tasks.containsKey(id)) {
             return;
         }
-        tasks.put(id, task);
+        tasks.put(id, task); // Обновляем задачу в tasks
+        addTaskTime(task); // Обновляем задачу в prioritizedTasks
     }
 
     @Override
@@ -167,7 +190,8 @@ public class InMemoryTaskManager implements TaskManager {
             return;
         }
         subtasks.put(id, subtask);
-        updateEpicStatus(epics.get(epicId));
+        recalculateStatus(epics.get(epicId));
+        recalculateTime(epics.get(epicId));
     }
 
     @Override
@@ -175,34 +199,69 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
-    private void updateEpicStatus(Epic epic) {
+    // Метод для пересчета статуса эпика
+    private void recalculateStatus(Epic epic) {
         List<Subtask> epicSubtasks = getSubtasksByEpic(epic);
 
-        boolean allDone = true;
-        boolean allNew = true;
-
-        for (Subtask subtask : epicSubtasks) {
-            if (subtask.getStatus() != Status.DONE) {
-                allDone = false;
-            }
-            if (subtask.getStatus() != Status.NEW) {
-                allNew = false;
-            }
+        if (epicSubtasks.isEmpty()) {
+            epic.setStatus(Status.NEW);
+            return;
         }
 
-        if (allDone) {
-            epic.setStatus(Status.DONE);
-        } else if (allNew) {
+        boolean allNew = epicSubtasks.stream().allMatch(subtask -> subtask.getStatus() == Status.NEW);
+        boolean allDone = epicSubtasks.stream().allMatch(subtask -> subtask.getStatus() == Status.DONE);
+
+        if (allNew) {
             epic.setStatus(Status.NEW);
+        } else if (allDone) {
+            epic.setStatus(Status.DONE);
         } else {
             epic.setStatus(Status.IN_PROGRESS);
         }
     }
 
+    // Метод для пересчета времени эпика
+    private void recalculateTime(Epic epic) {
+        List<Subtask> epicSubtasks = getSubtasksByEpic(epic);
+
+        if (epicSubtasks.isEmpty()) {
+            epic.setDuration(Duration.ZERO);
+            epic.setStartTime(null);
+            epic.setEndTime(null);
+            return;
+        }
+
+        Duration totalDuration = epicSubtasks.stream()
+                .map(Subtask::getDuration)
+                .reduce(Duration.ZERO, Duration::plus);
+
+        LocalDateTime earliestStartTime = epicSubtasks.stream()
+                .map(Subtask::getStartTime)
+                .filter(Objects::nonNull)
+                .min(LocalDateTime::compareTo)
+                .orElse(null);
+
+        LocalDateTime latestEndTime = epicSubtasks.stream()
+                .map(Subtask::getEndTime)
+                .filter(Objects::nonNull)
+                .max(LocalDateTime::compareTo)
+                .orElse(null);
+
+        epic.setDuration(totalDuration);
+        epic.setStartTime(earliestStartTime);
+        epic.setEndTime(latestEndTime);
+    }
+
+    // Метод для добавления задачи в историю и возврата задачи
     private <T extends Task> T addToHistoryAndReturn(T task) {
         if (task != null) {
             historyManager.add(task);
         }
         return task;
+    }
+
+    @Override
+    public List<Task> getPrioritizedTasks() {
+        return new ArrayList<>(prioritizedTasks);
     }
 }

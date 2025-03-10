@@ -6,6 +6,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private static final String HEADER = "id,type,name,status,description,epic";
@@ -131,7 +132,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
      */
     public static String toString(Task task) {
         return task.getId() + "," + task.getType() + "," + task.getTitle() + "," + task.getStatus() + ","
-                + task.getDescription() + (task.getType().equals(TaskType.SUBTASK) ? "," + ((Subtask) task).getEpicId() : "");
+                + task.getDescription() + "," + task.getDuration().toMinutes() + "," + task.getStartTime()
+                + (task.getType().equals(TaskType.SUBTASK) ? "," + ((Subtask) task).getEpicId() : "");
     }
 
     /**
@@ -177,15 +179,20 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String name = fields[2];
         Status status = Status.valueOf(fields[3]);
         String description = fields[4];
+        Duration duration = Duration.ofMinutes(Long.parseLong(fields[5]));
+        LocalDateTime startTime = fields[6].equals("null") ? null : LocalDateTime.parse(fields[6]);
 
         switch (type) {
             case TASK:
-                return new Task(name, description, status, Duration.ZERO, null); // Добавлены Duration и startTime
+                return new Task(name, description, status, duration, startTime);
             case EPIC:
-                return new Epic(name, description);
+                Epic epic = new Epic(name, description);
+                epic.setDuration(duration);
+                epic.setStartTime(startTime);
+                return epic;
             case SUBTASK:
-                int epicId = Integer.parseInt(fields[5]);
-                return new Subtask(name, description, status, Duration.ZERO, null, epicId); // Добавлены Duration и startTime
+                int epicId = Integer.parseInt(fields[7]);
+                return new Subtask(name, description, status, duration, startTime, epicId);
             default:
                 throw new IllegalArgumentException("Неизвестный тип задачи: " + type);
         }

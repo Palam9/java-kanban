@@ -35,7 +35,8 @@ public class InMemoryTaskManager implements TaskManager {
     public int addTask(Task task) {
         int id = ++generatorId;
         task.setId(id);
-        addTaskTime(task);
+        addTaskTime(task); // Добавляем в prioritizedTasks
+        tasks.put(id, task); // Добавляем в tasks
         return id;
     }
 
@@ -166,7 +167,8 @@ public class InMemoryTaskManager implements TaskManager {
         if (!tasks.containsKey(id)) {
             return;
         }
-        addTaskTime(task);  // Обновляем задачу в приоритетной очереди и сохраняем в tasks
+        tasks.put(id, task); // Обновляем задачу в tasks
+        addTaskTime(task); // Обновляем задачу в prioritizedTasks
     }
 
     @Override

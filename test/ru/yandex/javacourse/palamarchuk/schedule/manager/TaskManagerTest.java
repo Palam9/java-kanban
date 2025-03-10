@@ -35,6 +35,7 @@ class TaskManagerTest {
         assertNotNull(taskManager.getTask(taskId), "Задача не была добавлена.");
     }
 
+
     @Test
     void testRemoveTask() {
         int taskId = taskManager.addTask(task1);
@@ -54,6 +55,7 @@ class TaskManagerTest {
 
         assertEquals(updatedTask, taskFromManager, "Задача не была обновлена корректно.");
     }
+
 
     @Test
     void testRemoveTaskFromHistoryOnDeletion() {
@@ -103,6 +105,7 @@ class TaskManagerTest {
         Task updatedTask = taskManager.getTask(taskId);
         assertEquals("Updated Title", updatedTask.getTitle(), "Заголовок задачи не был обновлен.");
     }
+
 
     @Test
     void testSubtaskDataIntegrity() {

@@ -79,6 +79,16 @@ public class Task {
         return (startTime != null) ? startTime.plus(duration) : null; // Добавлена защита от NullPointerException
     }
 
+    public String getDurationAsString() {
+        return duration != null ? String.valueOf(duration.toMillis()) : null;
+    }
+
+    public void setDurationFromString(String durationString) {
+        if (durationString != null) {
+            this.duration = Duration.ofMillis(Long.parseLong(durationString));
+        }
+    }
+
     // Проверка пересечения задач
     public boolean isOverlapping(Task other) {
         return this.startTime != null && other.startTime != null &&

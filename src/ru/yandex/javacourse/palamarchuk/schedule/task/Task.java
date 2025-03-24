@@ -1,8 +1,11 @@
 package ru.yandex.javacourse.palamarchuk.schedule.task;
 
+import ru.yandex.javacourse.palamarchuk.schedule.manager.TaskManager;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.List;
 
 public class Task {
     private int id; // Идентификатор задачи
@@ -11,6 +14,9 @@ public class Task {
     protected Status status; // Статус задачи
     protected Duration duration;
     protected LocalDateTime startTime;
+
+    public Task(String testTask, String description) {
+    }
 
     public TaskType getType() {
         return TaskType.TASK;
@@ -87,6 +93,24 @@ public class Task {
         if (durationString != null) {
             this.duration = Duration.ofMillis(Long.parseLong(durationString));
         }
+    }
+
+    private boolean isTaskTimeOverlap(Task task) {
+        // Получаем список задач, отсортированных по времени начала
+        TaskManager manager = null;
+        List<Task> prioritizedTasks = manager.getPrioritizedTasks();
+
+        // Проверяем пересечение с каждой задачей
+        for (Task t : prioritizedTasks) {
+            // Игнорируем саму задачу, если это обновление
+            if (t.getId() != task.getId() && t.getStartTime() != null && task.getStartTime() != null) {
+                // Проверяем пересечение временных интервалов
+                if (!t.getEndTime().isBefore(task.getStartTime()) && !t.getStartTime().isAfter(task.getEndTime())) {
+                    return true; // Найдено пересечение
+                }
+            }
+        }
+        return false; // Пересечений нет
     }
 
     // Проверка пересечения задач

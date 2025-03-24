@@ -32,6 +32,15 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
+    public boolean isTaskTimeOverlap(Task task) {
+        if (task == null || task.getStartTime() == null) {
+            return false;
+        }
+        return prioritizedTasks.stream().anyMatch(existingTask -> existingTask.isOverlapping(task));
+    }
+
+
+    @Override
     public int addTask(Task task) {
         int id = ++generatorId;
         task.setId(id);

@@ -32,6 +32,8 @@ public interface TaskManager {
 
     Task getTask(int id);
 
+    boolean isTaskTimeOverlap(Task task);
+
     Epic getEpic(int id);
 
     Subtask getSubtask(int id);

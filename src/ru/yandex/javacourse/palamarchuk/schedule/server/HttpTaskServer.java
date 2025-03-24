@@ -9,8 +9,8 @@ import java.net.InetSocketAddress;
 
 public class HttpTaskServer {
     private static final int PORT = 8080;
-    final  HttpServer server;
-    final  TaskManager manager;
+    private final  HttpServer server;
+    private final  TaskManager manager;
 
     public HttpTaskServer(TaskManager manager) throws IOException {
         this.manager = manager;

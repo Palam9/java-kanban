@@ -1,19 +1,46 @@
 package ru.yandex.javacourse.palamarchuk.schedule.task;
 
+import ru.yandex.javacourse.palamarchuk.schedule.manager.TaskManager;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.List;
 
 public class Task {
-    private int id;
-    private String title;
-    private String description;
-    private Status status;
+    private int id; // Идентификатор задачи
+    private String title; // Заголовок задачи
+    private String description; // Описание задачи
+    protected Status status; // Статус задачи
+    protected Duration duration;
+    protected LocalDateTime startTime;
 
-    public Task(String title, String description, Status status) {
+    public Task(String testTask, String description) {
+    }
+
+    public TaskType getType() {
+        return TaskType.TASK;
+    }
+
+    //Конструктор id
+    public Task(int id, String title, String description, Status status, Duration duration, LocalDateTime startTime) {
+        this.id = id;
         this.title = title;
         this.description = description;
         this.status = status;
+        this.duration = duration;
+        this.startTime = startTime;
     }
 
+    public Task(String title, String description, Status status, Duration duration, LocalDateTime startTime) {
+        this(0, title, description, status, duration, startTime);
+    }
+
+    public Task(String title, String description, Status status) {
+        this(0, title, description, status, Duration.ZERO, null); // Значения по умолчанию
+    }
+
+    // Геттеры и сеттеры
     public int getId() {
         return id;
     }
@@ -46,26 +73,82 @@ public class Task {
         this.status = status;
     }
 
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return (startTime != null) ? startTime.plus(duration) : null; // Добавлена защита от NullPointerException
+    }
+
+    public String getDurationAsString() {
+        return duration != null ? String.valueOf(duration.toMillis()) : null;
+    }
+
+    public void setDurationFromString(String durationString) {
+        if (durationString != null) {
+            this.duration = Duration.ofMillis(Long.parseLong(durationString));
+        }
+    }
+
+    private boolean isTaskTimeOverlap(Task task) {
+        // Получаем список задач, отсортированных по времени начала
+        TaskManager manager = null;
+        List<Task> prioritizedTasks = manager.getPrioritizedTasks();
+
+        // Проверяем пересечение с каждой задачей
+        for (Task t : prioritizedTasks) {
+            // Игнорируем саму задачу, если это обновление
+            if (t.getId() != task.getId() && t.getStartTime() != null && task.getStartTime() != null) {
+                // Проверяем пересечение временных интервалов
+                if (!t.getEndTime().isBefore(task.getStartTime()) && !t.getStartTime().isAfter(task.getEndTime())) {
+                    return true; // Найдено пересечение
+                }
+            }
+        }
+        return false; // Пересечений нет
+    }
+
+    // Проверка пересечения задач
+    public boolean isOverlapping(Task other) {
+        return this.startTime != null && other.startTime != null &&
+                this.getEndTime().isAfter(other.startTime) && other.getEndTime().isAfter(this.startTime);
+    }
+
+    // Метод equals для сравнения только по id
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return id == task.id && title.equals(task.title) && description.equals(task.description) && status == task.status;
+        return id == task.id &&
+                Objects.equals(title, task.title) &&
+                Objects.equals(description, task.description) &&
+                status == task.status;
     }
 
+    // Метод hashCode для генерации хэша только на основе id
     @Override
     public int hashCode() {
         return Objects.hash(id, title, description, status);
     }
 
+    // Переопределение toString для удобного отображения задачи
     @Override
     public String toString() {
         return "Task{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
-                ", status=" + status +
+                ", status=" + status + '\'' +
+                "duration=" + duration.toMinutes() + '\'' +
+                "startTime=" + startTime +
                 '}';
     }
 }
+
+

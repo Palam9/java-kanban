@@ -99,9 +99,6 @@ public class EpicHandler extends BaseHttpHandler {
             } catch (NumberFormatException e) {
                 sendText(exchange, "Некорректный идентификатор эпика", 400);
             }
-        } else {
-            manager.deleteEpics();
-            sendText(exchange, "Все эпики удалены", 200);
         }
     }
 }
